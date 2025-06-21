@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/darkly/bootstrap.min.css">
+
+  <style>
+    body {
+      background-color: #1c1f23;
+    }
+
+    table {
+      width: 100%;
+      table-layout: auto;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      text-align: center;
+      vertical-align: middle !important;
+      white-space: nowrap;
+      font-size: 1rem;
+      padding: 12px;
+      border: 1px solid #444;
+    }
+
+    th {
+      background-color: #1e3d59 !important;
+      color: #ffffff !important;
+      font-size: 1.1rem;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    table tbody tr:hover {
+      background-color: #3d556e;
+      transition: background-color 0.3s ease;
+    }
+
+    h1, p, label {
+      color: #ffffff;
+    }
+
+    hr {
+      border-color: #555;
+    }
+
+    .table-responsive {
+      border-radius: 8px;
+      overflow-x: auto;
+      max-height: 600px; /* limite de altura com scroll vertical */
+    }
+
+    .table-footer {
+      margin-top: 8px;
+      font-size: 0.95rem;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-4">
+    <h1>Jogos para LayAway</h1>
+    <p><strong>Última atualização:</strong> {{ last_update }}</p>
+
+    <form method="post" class="d-flex align-items-center gap-2 mb-3">
+      <label class="form-label me-2">Escolha uma data:</label>
+      <input type="date" name="data" required class="form-control w-auto">
+      <button type="submit" class="btn btn-primary">Atualizar</button>
+    </form>
+
+    <a href="/logout" class="btn btn-danger mb-3">Sair</a>
+    <hr>
+
+    <div class="table-responsive">
+      {{ table|safe }}
+    </div>
+
+    <div class="table-footer">
+      Total de jogos selecionados: <strong> {{ total_jogos }}</strong>
+    </div>
+  </div>
+</body>
+</html>
