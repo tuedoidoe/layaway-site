@@ -83,6 +83,9 @@ def gerar_jogos_layaway(dia):
     jogos = jogos[
         (jogos['VAR2'] < 0.274) & (jogos['VAR3'] > 0.659) &  (jogos['VAR4'] > 1.61)]
 
+    jogos = jogos[
+        (jogos['Odd_A_Lay'] >= 8.0) & (jogos['Odd_A_Lay'] <= 14)]
+    
     jogos = drop_reset_index(jogos)
 
     resultado = jogos[[
