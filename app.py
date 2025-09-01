@@ -18,7 +18,6 @@ USUARIOS = {
     "usuario": "use2807"
 }
 
-
 class User(UserMixin):
     def __init__(self, id):
         self.id = id
@@ -44,11 +43,13 @@ def login():
 @login_required
 def dashboard():
     data = request.form.get("data", "")
+    perfil = request.form.get("perfil", "conservador")  # padrão: conservador
+
     if request.method == "POST" and data:
-    	gerar_jogos_layaway(data)
+        gerar_jogos_layaway(data)
     elif request.method == "GET":
-    	data = datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y-%m-%d")
-    	gerar_jogos_layaway(data)
+        data = datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y-%m-%d")
+        gerar_jogos_layaway(data)
 
     try:
         df_original = pd.read_csv("data/resultados.csv")
@@ -56,6 +57,16 @@ def dashboard():
         # Converter UTC para horário de Brasília
         ultima = df_original["Atualizado_em"].max()
         ultima = pd.to_datetime(ultima).tz_localize('UTC').tz_convert('America/Sao_Paulo').strftime("%d-%m-%y %H:%M")
+
+        # ------------------------
+        # FILTRAGEM POR PERFIL
+        # ------------------------
+        if perfil == "conservador":
+            df_original = df_original[df_original["ODD_Max"] <= 13.0]
+        elif perfil == "moderado":
+            df_original = df_original[df_original["ODD_Max"] <= 17.0]
+        elif perfil == "arrojado":
+            df_original = df_original[df_original["ODD_Max"] <= 20.0]
 
         # Copiar e limpar as colunas para exibição
         df = df_original.drop(columns=["Lay_Away", "Atualizado_em"], errors="ignore")
@@ -67,13 +78,14 @@ def dashboard():
 
         total_jogos = len(df)
         table_html = df.to_html(classes="table table-bordered table-hover align-middle", index=False, border=0)
-    except:
+    except Exception as e:
+        print("Erro no processamento:", e)
         df = pd.DataFrame(columns=["Data", "Time", "Odd_Casa", "Odd_Empate", "Odd_Fora"])
         ultima = "Sem dados"
         total_jogos = 0
         table_html = df.to_html(classes="table table-bordered table-hover align-middle", index=False, border=0)
 
-    return render_template("dashboard.html", table=table_html, last_update=ultima, total_jogos=total_jogos)
+    return render_template("dashboard.html", table=table_html, last_update=ultima, total_jogos=total_jogos, perfil=perfil)
 
 @app.route("/logout")
 def logout():
