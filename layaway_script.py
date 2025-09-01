@@ -1,4 +1,4 @@
-def gerar_jogos_layaway(dia):
+def gerar_jogos_layaway(dia, odd_max=15.0):
     import pandas as pd
     import numpy as np
     import requests
@@ -15,7 +15,8 @@ def gerar_jogos_layaway(dia):
         df.index += 1
         return df
 
-    ODD_Max = 15.00
+    # O valor de ODD_Max agora é dinâmico (vem do parâmetro odd_max)
+    ODD_Max = odd_max
     alfa = 1.8015
     beta = 1.2583
 
@@ -81,11 +82,13 @@ def gerar_jogos_layaway(dia):
         jogos['Lay_Away'] = model.predict(X_today)
 
     jogos = jogos[
-        (jogos['VAR2'] < 0.274) & (jogos['VAR3'] > 0.659) &  (jogos['VAR4'] > 1.61)]
+        (jogos['VAR2'] < 0.274) & (jogos['VAR3'] > 0.659) & (jogos['VAR4'] > 1.61)
+    ]
 
     jogos = jogos[
-        (jogos['Odd_A_Lay'] >= 8.0) & (jogos['Odd_A_Lay'] <= 14)]
-    
+        (jogos['Odd_A_Lay'] >= 8.0) & (jogos['Odd_A_Lay'] <= 14)
+    ]
+
     jogos = drop_reset_index(jogos)
 
     resultado = jogos[[
@@ -102,6 +105,3 @@ def gerar_jogos_layaway(dia):
     except:
         df = pd.DataFrame([{
             "Mensagem": "Sem resultados para o dia selecionado",
-            "Atualizado_em": pd.Timestamp.now()
-        }])
-        df.to_csv("data/resultados.csv", index=False)
