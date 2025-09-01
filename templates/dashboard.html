@@ -61,16 +61,43 @@
       font-size: 0.95rem;
       color: #ccc;
     }
+
+    .perfil-options {
+      margin-left: auto;
+    }
   </style>
 </head>
 <body>
   <div class="container mt-4">
-    <h1>Jogos para LayAway</h1>
+    <div class="d-flex justify-content-between align-items-center">
+      <h1>Jogos para LayAway</h1>
+      <!-- Radios de perfil -->
+      <form method="post" class="perfil-options d-flex align-items-center gap-2">
+        <input type="hidden" name="data" value="{{ request.form.get('data', '') }}">
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="perfil" value="conservador" id="perfilConservador"
+            {% if perfil == 'conservador' %}checked{% endif %} onchange="this.form.submit()">
+          <label class="form-check-label" for="perfilConservador">Conservador</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="perfil" value="moderado" id="perfilModerado"
+            {% if perfil == 'moderado' %}checked{% endif %} onchange="this.form.submit()">
+          <label class="form-check-label" for="perfilModerado">Moderado</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="perfil" value="arrojado" id="perfilArrojado"
+            {% if perfil == 'arrojado' %}checked{% endif %} onchange="this.form.submit()">
+          <label class="form-check-label" for="perfilArrojado">Arrojado</label>
+        </div>
+      </form>
+    </div>
+
     <p><strong>Última atualização:</strong> {{ last_update }}</p>
 
     <form method="post" class="d-flex align-items-center gap-2 mb-3">
       <label class="form-label me-2">Escolha uma data:</label>
       <input type="date" name="data" required class="form-control w-auto">
+      <input type="hidden" name="perfil" value="{{ perfil }}">
       <button type="submit" class="btn btn-primary">Atualizar</button>
     </form>
 
@@ -82,8 +109,10 @@
     </div>
 
     <div class="table-footer">
-      Total de jogos selecionados: <strong> {{ total_jogos }}</strong>
+      Total de jogos selecionados: <strong>{{ total_jogos }}</strong><br>
+      👉 Perfil atual: <strong>{{ perfil|capitalize }}</strong>
     </div>
   </div>
 </body>
 </html>
+
