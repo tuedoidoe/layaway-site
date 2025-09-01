@@ -1,51 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
+  <meta charset="UTF-8">
   <title>Dashboard</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/darkly/bootstrap.min.css">
 
   <style>
-    body { background-color: #1c1f23; }
-    table { width: 100%; table-layout: auto; border-collapse: separate; border-spacing: 0; border-radius: 8px; overflow: hidden; }
-    th, td { text-align: center; vertical-align: middle !important; white-space: nowrap; font-size: 1rem; padding: 12px; border: 1px solid #444; }
-    th { background-color: #1e3d59 !important; color: #ffffff !important; font-size: 1.1rem; font-weight: bold; position: sticky; top: 0; z-index: 2; }
-    table tbody tr:hover { background-color: #3d556e; transition: background-color 0.3s ease; }
-    h1, p, label { color: #ffffff; }
-    hr { border-color: #555; }
-    .table-responsive { border-radius: 8px; overflow-x: auto; max-height: 600px; }
-    .table-footer { margin-top: 8px; font-size: 0.95rem; color: #ccc; }
-    .perfil-options { margin-left: auto; }
+    body {
+      background-color: #1c1f23;
+    }
+
+    table {
+      width: 100%;
+      table-layout: auto;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      text-align: center;
+      vertical-align: middle !important;
+      white-space: nowrap;
+      font-size: 1rem;
+      padding: 12px;
+      border: 1px solid #444;
+    }
+
+    th {
+      background-color: #1e3d59 !important;
+      color: #ffffff !important;
+      font-size: 1.1rem;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    table tbody tr:hover {
+      background-color: #3d556e;
+      transition: background-color 0.3s ease;
+    }
+
+    h1, p, label {
+      color: #ffffff;
+    }
+
+    hr {
+      border-color: #555;
+    }
+
+    .table-responsive {
+      border-radius: 8px;
+      overflow-x: auto;
+      max-height: 600px; /* limite de altura com scroll vertical */
+    }
+
+    .table-footer {
+      margin-top: 8px;
+      font-size: 0.95rem;
+      color: #ccc;
+    }
+
+    .perfil-opcoes {
+      display: flex;
+      gap: 15px;
+      justify-content: flex-end;
+      margin-bottom: 15px;
+    }
+
+    .perfil-opcoes label {
+      margin: 0;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-between align-items-center mb-3">
       <h1>Jogos para LayAway</h1>
-      <!-- Radios de perfil: ao mudar, já envia o form e regenera com novo odd_max -->
-      <form method="post" class="perfil-options d-flex align-items-center gap-2">
-        <!-- mantém a data atual do outro form, se houver -->
+      <form method="post" class="perfil-opcoes">
         <input type="hidden" name="data" value="{{ request.form.get('data', '') }}">
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="perfil" value="conservador" id="perfilConservador"
-                 {% if perfil == 'conservador' %}checked{% endif %} onchange="this.form.submit()">
-          <label class="form-check-label" for="perfilConservador">Conservador</label>
-        </div>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="perfil" value="moderado" id="perfilModerado"
-                 {% if perfil == 'moderado' %}checked{% endif %} onchange="this.form.submit()">
-          <label class="form-check-label" for="perfilModerado">Moderado</label>
-        </div>
-        <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="perfil" value="arrojado" id="perfilArrojado"
-                 {% if perfil == 'arrojado' %}checked{% endif %} onchange="this.form.submit()">
-          <label class="form-check-label" for="perfilArrojado">Arrojado</label>
-        </div>
+        <label>
+          <input type="radio" name="perfil" value="conservador" {% if perfil == 'conservador' %}checked{% endif %}>
+          Conservador
+        </label>
+        <label>
+          <input type="radio" name="perfil" value="moderado" {% if perfil == 'moderado' %}checked{% endif %}>
+          Moderado
+        </label>
+        <label>
+          <input type="radio" name="perfil" value="arrojado" {% if perfil == 'arrojado' %}checked{% endif %}>
+          Arrojado
+        </label>
+        <button type="submit" class="btn btn-sm btn-secondary ms-2">Aplicar</button>
       </form>
     </div>
 
     <p><strong>Última atualização:</strong> {{ last_update }}</p>
 
-    <!-- Atualização por data dispara a geração com o perfil atual -->
     <form method="post" class="d-flex align-items-center gap-2 mb-3">
       <label class="form-label me-2">Escolha uma data:</label>
       <input type="date" name="data" required class="form-control w-auto">
@@ -61,7 +116,7 @@
     </div>
 
     <div class="table-footer">
-      Total de jogos selecionados: <strong>{{ total_jogos }}</strong><br>
+      Total de jogos selecionados: <strong>{{ total_jogos }}</strong> <br>
       👉 Perfil atual: <strong>{{ perfil|capitalize }}</strong>
     </div>
   </div>
