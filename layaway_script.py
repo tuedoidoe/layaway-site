@@ -68,7 +68,7 @@ def gerar_jogos_layaway(dia, odd_max=15.0):
     jogos['VAR4'] = np.round(np.log(jogos['Odd_A'] / jogos['Odd_H']), 4)
 
     url = 'https://github.com/tuedoidoe/Previsao_Entrada/raw/refs/heads/main/Dados_Excel/Modelo_LayAway_3.2.pkl'
-    caminho_arquivo = 'Modelo_LayAway_3.2.pkl'
+    caminho_arquivo = 'Modelo_LayAway_3.3.pkl'
 
     urllib.request.urlretrieve(url, caminho_arquivo)
     model = joblib.load(caminho_arquivo)
@@ -82,11 +82,7 @@ def gerar_jogos_layaway(dia, odd_max=15.0):
         jogos['Lay_Away'] = model.predict(X_today)
 
     jogos = jogos[
-        (jogos['VAR2'] < 0.274) & (jogos['VAR3'] > 0.659) & (jogos['VAR4'] > 1.61)
-    ]
-
-    jogos = jogos[
-        (jogos['Odd_A_Lay'] >= 8.0) & (jogos['Odd_A_Lay'] <= 14)
+        (jogos['VAR2'] > 0.1489) & (jogos['VAR2'] < 0.3289)) & (jogos['VAR3'] > 0.4041) & (jogos['VAR4'] > 1.80)
     ]
 
     jogos = drop_reset_index(jogos)
