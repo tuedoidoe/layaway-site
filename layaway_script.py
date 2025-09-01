@@ -82,8 +82,7 @@ def gerar_jogos_layaway(dia, odd_max=15.0):
         jogos['Lay_Away'] = model.predict(X_today)
 
     jogos = jogos[
-        (jogos['VAR2'] > 0.1489) & (jogos['VAR2'] < 0.3289)) & (jogos['VAR3'] > 0.4041) & (jogos['VAR4'] > 1.80)
-    ]
+        ((jogos['VAR2'] > 0.1489) & (jogos['VAR2'] < 0.3289)) & (jogos['VAR3'] > 0.4041) & (jogos['VAR4'] > 1.80)]
 
     jogos = drop_reset_index(jogos)
 
