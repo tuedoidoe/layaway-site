@@ -67,7 +67,7 @@ def gerar_jogos_layaway(dia, odd_max=15.0):
     jogos['VAR3'] = np.round(CV_Odds, 4)
     jogos['VAR4'] = np.round(np.log(jogos['Odd_A'] / jogos['Odd_H']), 4)
 
-    url = 'https://github.com/tuedoidoe/Previsao_Entrada/raw/refs/heads/main/Dados_Excel/Modelo_LayAway_3.2.pkl'
+    url = 'https://github.com/tuedoidoe/Previsao_Entrada/raw/refs/heads/main/Dados_Excel/Modelo_LayAway_3.3.pkl'
     caminho_arquivo = 'Modelo_LayAway_3.3.pkl'
 
     urllib.request.urlretrieve(url, caminho_arquivo)
@@ -82,7 +82,8 @@ def gerar_jogos_layaway(dia, odd_max=15.0):
         jogos['Lay_Away'] = model.predict(X_today)
 
     jogos = jogos[
-        ((jogos['VAR2'] > 0.1489) & (jogos['VAR2'] < 0.3289)) & (jogos['VAR3'] > 0.4041) & (jogos['VAR4'] > 1.80)]
+        ((jogos['VAR2'] > 0.1489) & (jogos['VAR2'] < 0.3289)) & (jogos['VAR3'] > 0.4041) & (jogos['VAR4'] > 1.80)
+    ]
 
     jogos = drop_reset_index(jogos)
 
@@ -100,3 +101,6 @@ def gerar_jogos_layaway(dia, odd_max=15.0):
     except:
         df = pd.DataFrame([{
             "Mensagem": "Sem resultados para o dia selecionado",
+            "Atualizado_em": pd.Timestamp.now()
+        }])
+        df.to_csv("data/resultados.csv", index=False)
