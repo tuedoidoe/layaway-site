@@ -39,36 +39,39 @@ def login():
             erro = "Usuário ou senha incorretos."
     return render_template("login.html", erro=erro)
 
+def _odd_max_por_perfil(perfil: str) -> float:
+    mapa = {
+        "conservador": 13.0,
+        "moderado": 17.0,
+        "arrojado": 20.0,
+    }
+    return mapa.get(perfil, 13.0)  # padrão conservador
+
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
-    data = request.form.get("data", "")
-    perfil = request.form.get("perfil", "conservador")  # padrão: conservador
+    # Lê perfil escolhido; padrão conservador
+    perfil = request.form.get("perfil", request.args.get("perfil", "conservador"))
+    odd_max = _odd_max_por_perfil(perfil)
 
+    # Lê data (se não vier, usa hoje)
+    data = request.form.get("data", "")
     if request.method == "POST" and data:
-        gerar_jogos_layaway(data)
+        # Executa geração com a ODD_MAX do perfil escolhido
+        gerar_jogos_layaway(data, odd_max=odd_max)
     elif request.method == "GET":
         data = datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y-%m-%d")
-        gerar_jogos_layaway(data)
+        gerar_jogos_layaway(data, odd_max=odd_max)
 
     try:
         df_original = pd.read_csv("data/resultados.csv")
 
-        # Converter UTC para horário de Brasília
+        # Converte carimbo de atualização (gravado em UTC) para Brasília
         ultima = df_original["Atualizado_em"].max()
-        ultima = pd.to_datetime(ultima).tz_localize('UTC').tz_convert('America/Sao_Paulo').strftime("%d-%m-%y %H:%M")
+        # utc=True funciona pra string com/sem tz; depois converte
+        ultima = pd.to_datetime(ultima, utc=True).tz_convert('America/Sao_Paulo').strftime("%d-%m-%y %H:%M")
 
-        # ------------------------
-        # FILTRAGEM POR PERFIL
-        # ------------------------
-        if perfil == "conservador":
-            df_original = df_original[df_original["ODD_Max"] <= 13.0]
-        elif perfil == "moderado":
-            df_original = df_original[df_original["ODD_Max"] <= 17.0]
-        elif perfil == "arrojado":
-            df_original = df_original[df_original["ODD_Max"] <= 20.0]
-
-        # Copiar e limpar as colunas para exibição
+        # Apenas esconde colunas indesejadas na visualização (não filtra!)
         df = df_original.drop(columns=["Lay_Away", "Atualizado_em"], errors="ignore")
         df = df.rename(columns={
             "Odd_H_Lay": "Odd_Casa",
@@ -85,7 +88,13 @@ def dashboard():
         total_jogos = 0
         table_html = df.to_html(classes="table table-bordered table-hover align-middle", index=False, border=0)
 
-    return render_template("dashboard.html", table=table_html, last_update=ultima, total_jogos=total_jogos, perfil=perfil)
+    return render_template(
+        "dashboard.html",
+        table=table_html,
+        last_update=ultima,
+        total_jogos=total_jogos,
+        perfil=perfil
+    )
 
 @app.route("/logout")
 def logout():
@@ -93,18 +102,17 @@ def logout():
     return redirect("/")
 
 def auto_update():
+    # Atualiza sozinho em HH:05 com ODD_MAX padrão (conservador)
     while True:
         agora = datetime.now(ZoneInfo("America/Sao_Paulo"))
 
-        # Calcula o próximo horário do tipo HH:05
         proxima_hora = agora.replace(minute=5, second=0, microsecond=0)
         if agora.minute >= 5:
             proxima_hora = proxima_hora.replace(hour=agora.hour + 1)
             if proxima_hora.hour == 24:
-                proxima_hora = proxima_hora.replace(hour=0)  # vira meia-noite
+                proxima_hora = proxima_hora.replace(hour=0)
 
         tempo_espera = (proxima_hora - agora).total_seconds()
-
         print(f"Aguardando até {proxima_hora.strftime('%H:%M')} para atualizar LayAway...")
 
         time.sleep(tempo_espera)
@@ -112,10 +120,11 @@ def auto_update():
         try:
             hoje = datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y-%m-%d")
             print(f"Atualizando jogos às {datetime.now(ZoneInfo('America/Sao_Paulo')).strftime('%H:%M:%S')}...")
-            gerar_jogos_layaway(hoje)
+            gerar_jogos_layaway(hoje, odd_max=13.0)  # conservador como padrão
         except Exception as e:
             print("Erro ao atualizar automaticamente:", e)
 
 if __name__ == "__main__":
     threading.Thread(target=auto_update, daemon=True).start()
     app.run(debug=True)
+
